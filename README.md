@@ -1,8 +1,7 @@
 # geospatial-preeclampsia-geobirth
 
 This repository contains the code and data used to run the analyses from the paper “A Machine Learning-Based Approach to Disentangle the Relative Importance of Features of the Maternal Neighborhood Environment on Preeclampsia Diagnosis” 
-(Paris CF, Ledyard R, Just AC, South EC, Nguemeni Tiako MJ, Canelón SP, Burris HH, Romano JD). Note that the data from the preeclampsia case-control study used in the paper is not publicly available due to patient privacy concerns. Further information on how to download the original neighborhood feature data sources is provided in `data/`. 
-To run these analyses the user must provide their own patient data. 
+(Paris CF, Ledyard R, Just AC, South EC, Nguemeni Tiako MJ, Canelón SP, Burris HH, Romano JD). Note that the data from the preeclampsia case-control study used in the paper is not publicly available due to patient privacy concerns. To run these analyses the user must provide their own patient data. Further information on how to download the original neighborhood feature data sources is provided in `data/`. 
 
 ** Please note: the neighborhood features PM2.5 and temperature were part of our patient data and so no data curation/linkage was necessary for our analysis.
 
