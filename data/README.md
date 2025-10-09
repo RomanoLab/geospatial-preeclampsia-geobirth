@@ -2,7 +2,7 @@
 
 **Social Vulnerability**
 
-All social vulnerability features listed in Table 1 of the paper comes from the American Community Survey (ACS) and can be downloaded directly through our script `ACS_vars_linkage.R` using the Census API.
+All social vulnerability features listed in Table 1 of the paper come from the American Community Survey (ACS) and can be downloaded directly through our script `ACS_vars_linkage.R` using the Census API.
 
 **Built environment** 
 
