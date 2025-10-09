@@ -10,7 +10,7 @@ Please follow these steps to reproduce the analyses with the input of a case-con
 ***Curate and link the neighborhood features to the patient data***  
 
 - `PLACES_data_cleaning.py` : script to clean the PLACES data
-- `ACS_linkage.R` : script to download ACS variables through the United States Census Bureau’s API and link to the patient data
+- `ACS_vars_linkage.R` : script to download ACS variables through the United States Census Bureau’s API and link to the patient data
 - `tree_canopy_linkage.R` : script to link tree canopy cover to patient data
 - `walkability_linkage.R` : script to link walkability to patient data
 - `PLACES_linkage.R` : script to link PLACES data to patient data
