@@ -7,6 +7,10 @@ This repository contains the code and data used to run the analyses from the pap
 
 Please follow these steps to reproduce the analyses with the input of a case-control study:
 
+***Prepare publicly available data***
+
+Instructions on how to download and prepare the data used in the analyses are available in `data/README.md`.
+
 ***Curate and link the neighborhood features to the patient data***  
 
 - `PLACES_data_cleaning.py` : script to clean the PLACES data
