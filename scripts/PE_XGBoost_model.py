@@ -161,9 +161,16 @@ if __name__=="__main__":
     ######################################################################################
     # CROSS VALIDATION EVALUATION
     ######################################################################################
-    cv_results = cross_validate(best_model, X_df, y_df_array, cv=skf, scoring = ['roc_auc', 'accuracy'], return_train_score = True)
+    cv_results = cross_validate(best_model, X_df, y_df_array, cv=skf, scoring = ['roc_auc', 'accuracy'], return_train_score = True, return_estimator = True, return_indices=True)
     AUC_scores = cv_results['test_roc_auc']
     accuracy_scores = cv_results['test_accuracy']
+
+    # get dataset used as validation set in each of the 5 folds
+    fld_1_ind = cv_results['indices']['test'][0]
+    fld_2_ind = cv_results['indices']['test'][1]
+    fld_3_ind = cv_results['indices']['test'][2]
+    fld_4_ind = cv_results['indices']['test'][3]
+    fld_5_ind = cv_results['indices']['test'][4]
 
     ######################################################################################
     # PERFORMANCE METRICS
@@ -174,34 +181,23 @@ if __name__=="__main__":
     print('Accuracy mean +/- std:', round(float(accuracy_mean),3), '+/-', round(float(accuracy_std),3), ', CI:', round(float(accuracy_ci[0]),3), round(float(accuracy_ci[1]),3))
 
     ######################################################################################
-    # SHAP ANALYSIS
+    # SHAP ANALYSIS PART 1 -- FIGURE 4
     ######################################################################################
-    # copy of data
-    PE_data = X_df.copy()
-    
-    # rename exposure names
-    PE_data.columns = ['Tree canopy cover (%)', 'National Walkability Index score', 'People below the federal poverty threshold (%)',
-                                'People employed (%)', 'People with bachelors degree or higher (%)', 'ICE Race-Income', 'Housing units built before 1960 (%)',
-                                'Daily PM2.5', 'Daily mean temperature', 'Obesity (%)', 'Frequent mental distress (%)', 'Short sleep duration (%)', 
-                                'Frequent physical distress (%)', 'Asthma (%)', 'No leisure-time physical activity (%)', 'Coronary heart disease (%)',
-                                'Any disability (%)', 'Arthritis (%)', 'Cancer (%)', 'High blood pressure (%)',
-                                'COPD (%)', 'Fair or poor self-rated health status (%)', 'Stroke (%)',
-                                'Diabetes (%)', 'Depression (%)', 'High cholesterol (%)']
-    
-    # shap values for xgboost model
-    explainer = shap.TreeExplainer(best_model)
-    shap_values = explainer.shap_values(PE_data)
-    shap.summary_plot(shap_values, PE_data, show=False, max_display=10)
+    # get validation data for 5 different folds
+    test_data_fld_1 = X_df.iloc[fld_1_ind]
+    test_data_fld_1.reset_index(inplace=True, drop=True)
 
-    ## figure 4
-    # get SHAP values into dataframe
-    shap_vals_df = pd.DataFrame(shap_values)
+    test_data_fld_2 = X_df.iloc[fld_2_ind]
+    test_data_fld_2.reset_index(inplace=True, drop=True)
 
-    # absolute value
-    abs_shap_vals_df = shap_vals_df.abs()
+    test_data_fld_3 = X_df.iloc[fld_3_ind]
+    test_data_fld_3.reset_index(inplace=True, drop=True)
 
-    # mean absolute shap value for each feature
-    mean_abs_shap_vals = list(abs_shap_vals_df.mean())
+    test_data_fld_4 = X_df.iloc[fld_4_ind]
+    test_data_fld_4.reset_index(inplace=True, drop=True)
+
+    test_data_fld_5 = X_df.iloc[fld_5_ind]
+    test_data_fld_5.reset_index(inplace=True, drop=True)
 
     # feature list
     full_names_feats = ['Tree canopy cover (%)', 'National Walkability Index score', 'People below the federal poverty threshold (%)',
@@ -211,19 +207,56 @@ if __name__=="__main__":
                                     'Any disability (%)', 'Arthritis (%)', 'Cancer (%)', 'High blood pressure (%)',
                                     'Chronic obstructive pulmonary disease (COPD) (%)', 'Fair or poor self-rated health status (%)', 'Stroke (%)',
                                     'Diabetes (%)', 'Depression (%)', 'High cholesterol (%)']
+    
+    # shap values for each fold
+    explainer = shap.TreeExplainer(best_model)
+    shap_values_fld_1 = explainer.shap_values(test_data_fld_1)
+    shap_values_fld_2 = explainer.shap_values(test_data_fld_2)
+    shap_values_fld_3 = explainer.shap_values(test_data_fld_3)
+    shap_values_fld_4 = explainer.shap_values(test_data_fld_4)
+    shap_values_fld_5 = explainer.shap_values(test_data_fld_5)
+
+    # get SHAP values into dataframe
+    shap_values_fld_1_df = pd.DataFrame(shap_values_fld_1)
+    shap_values_fld_2_df = pd.DataFrame(shap_values_fld_2)
+    shap_values_fld_3_df = pd.DataFrame(shap_values_fld_3)
+    shap_values_fld_4_df = pd.DataFrame(shap_values_fld_4)
+    shap_values_fld_5_df = pd.DataFrame(shap_values_fld_5)
+
+    # get absolute value and return mean of every column (feature)
+    shap_values_fld_1_df = shap_values_fld_1_df.abs()
+    shap_values_fld_2_df = shap_values_fld_2_df.abs()
+    shap_values_fld_3_df = shap_values_fld_3_df.abs()
+    shap_values_fld_4_df = shap_values_fld_4_df.abs()
+    shap_values_fld_5_df = shap_values_fld_5_df.abs()
+
+    shap_values_fld_1_mean = list(shap_values_fld_1_df.mean())
+    shap_values_fld_2_mean = list(shap_values_fld_2_df.mean())
+    shap_values_fld_3_mean = list(shap_values_fld_3_df.mean())
+    shap_values_fld_4_mean = list(shap_values_fld_4_df.mean())
+    shap_values_fld_5_mean = list(shap_values_fld_5_df.mean())
 
     # make dataframe with features and their mean absolute shap value
     feat_shap_val_df = pd.DataFrame(
         {'feature' : full_names_feats,
-        'mean_shap_val': mean_abs_shap_vals
+        'fold_1_mean': shap_values_fld_1_mean,
+        'fold_2_mean': shap_values_fld_2_mean,
+        'fold_3_mean': shap_values_fld_3_mean,
+        'fold_4_mean': shap_values_fld_4_mean,
+        'fold_5_mean': shap_values_fld_5_mean
         })
 
-    # sort by highest shap value
-    feat_shap_val_df.sort_values(by=['mean_shap_val'], ascending=False, inplace=True)
+    # sort by highest shap value (using fold 2)
+    feat_shap_val_df.sort_values(by=['fold_2_mean'], ascending=False, inplace=True)
 
     # add percent contribution
-    feat_shap_val_df['per_contrib'] = (feat_shap_val_df['mean_shap_val'] / feat_shap_val_df['mean_shap_val'].sum())
+    feat_shap_val_df['fold_1_per_contrib'] = (feat_shap_val_df['fold_1_mean'] / feat_shap_val_df['fold_1_mean'].sum())
+    feat_shap_val_df['fold_2_per_contrib'] = (feat_shap_val_df['fold_2_mean'] / feat_shap_val_df['fold_2_mean'].sum())
+    feat_shap_val_df['fold_3_per_contrib'] = (feat_shap_val_df['fold_3_mean'] / feat_shap_val_df['fold_3_mean'].sum())
+    feat_shap_val_df['fold_4_per_contrib'] = (feat_shap_val_df['fold_4_mean'] / feat_shap_val_df['fold_4_mean'].sum())
+    feat_shap_val_df['fold_5_per_contrib'] = (feat_shap_val_df['fold_5_mean'] / feat_shap_val_df['fold_5_mean'].sum())
 
+    # FIGURE 4 PLOT (using fold 2)
     # get first 10 features
     first_10_shap_vals_df = feat_shap_val_df.head(10)
 
@@ -231,15 +264,43 @@ if __name__=="__main__":
     last_16_shap_vals_df = feat_shap_val_df.iloc[-16:]
 
     # put into dataframe to plot in R
-    shap_Rplot_df = first_10_shap_vals_df[['feature','per_contrib']]
+    shap_Rplot_df = first_10_shap_vals_df[['feature','fold_2_per_contrib']]
 
     # add sum of last 16 to df
-    shap_Rplot_df.loc[-1] = ['Sum of 16 other features', last_16_shap_vals_df['per_contrib'].sum()]
+    shap_Rplot_df.loc[-1] = ['Sum of 16 other features', last_16_shap_vals_df['fold_2_per_contrib'].sum()]
 
     # save
     shap_Rplot_df.to_csv('./data/shap_mean_vals_bar_plot.csv', index=False)
 
-    ## figure 5
+    # FIGURE 4 TOP 3 ANALYSIS
+    # get first 3 features
+    first_3_shap_vals_df = feat_shap_val_df.head(3)
+
+    # top 3 sum of contribution 
+    first_3_shap_sum = list(first_3_shap_vals_df[['fold_1_per_contrib', 'fold_2_per_contrib', 'fold_3_per_contrib', 'fold_4_per_contrib', 'fold_5_per_contrib']].sum())
+
+    # mean and std dev
+    mean_contrib = np.mean(first_3_shap_sum)
+    std_dev = np.std(first_3_shap_sum, ddof=1)
+
+    print('Mean of top 3 SHAP vals contribution +/- std:', round(float(mean_contrib),3), '+/-', round(float(std_dev),3))
+
+    # get mean and std of each of the top 3 features individually
+    first_3_shap_vals_df['ind_feat_folds_mean'] = first_3_shap_vals_df[['fold_1_per_contrib', 'fold_2_per_contrib', 'fold_3_per_contrib', 'fold_4_per_contrib', 'fold_5_per_contrib' ]].mean(axis=1)
+    first_3_shap_vals_df['ind_feat_folds_std'] = first_3_shap_vals_df[['fold_1_per_contrib', 'fold_2_per_contrib', 'fold_3_per_contrib', 'fold_4_per_contrib', 'fold_5_per_contrib' ]].std(axis=1)
+
+    ######################################################################################
+    # SHAP ANALYSIS PART 1 -- FIGURE 5
+    ######################################################################################
+    # copy of data
+    PE_data = test_data_fld_1.copy()
+    
+    # rename exposure names
+    PE_data.columns = full_names_feats
+    
+    # shap beeswarm plot 
+    shap.summary_plot(shap_values_fld_1, PE_data, show=False, max_display=3)
+
     # modify main plot parameters
     fig, ax = plt.gcf(), plt.gca()
                 
@@ -254,5 +315,5 @@ if __name__=="__main__":
     cb_ax.set_ylabel("Feature value", fontsize=20)
 
     fig.set_size_inches(18.5, 10.5)
-    fig.savefig("Figure_5_SHAP_plot.pdf") #, dpi=100
+    fig.savefig("Figure_4_SHAP_plot.pdf") #, dpi=100
 
