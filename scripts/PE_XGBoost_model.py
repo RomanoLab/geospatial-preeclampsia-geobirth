@@ -293,13 +293,13 @@ if __name__=="__main__":
     # SHAP ANALYSIS PART 1 -- FIGURE 5
     ######################################################################################
     # copy of data
-    PE_data = test_data_fld_1.copy()
+    PE_data = test_data_fld_2.copy()
     
     # rename exposure names
     PE_data.columns = full_names_feats
     
     # shap beeswarm plot 
-    shap.summary_plot(shap_values_fld_1, PE_data, show=False, max_display=3)
+    shap.summary_plot(shap_values_fld_2, PE_data, show=False, max_display=3, cmap= plt.get_cmap("plasma"))
 
     # modify main plot parameters
     fig, ax = plt.gcf(), plt.gca()
